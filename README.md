@@ -165,11 +165,11 @@ que el propio notebook instala.
   Adversarial Networks*. IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR).
   [Origen del conjunto FFHQ]
 
-- Martínez Carrillo, F. (2026). *Inteligencia Artificial: material del curso* [Repositorio de
+- Garzón Villamizar, G. (2026). *Inteligencia Artificial: material del curso* [Repositorio de
   clase]. Universidad Industrial de Santander.
   https://gitlab.com/bivl2ab/academico/cursos-uis/ai/ai-uis-student
 
-- Martínez Carrillo, F. (agosto a septiembre de 2026). *Clases de Inteligencia Artificial 1*
+- Garzón Villamizar, G. (agosto a septiembre de 2026). *Clases de Inteligencia Artificial 1*
   [Comunicación personal]. Universidad Industrial de Santander, Bucaramanga, Colombia.
 
 ---
