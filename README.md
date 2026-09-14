@@ -1,7 +1,7 @@
 # ¿Esta cara es real?
 ## Detección de rostros generados o manipulados por IA (deepfake) en imágenes mediante algoritmos clásicos de aprendizaje automático
 
-![Banner del proyecto](banner.jpg)
+![Banner del proyecto](banner-proyecto.jpg)
 
 **Autores:** Juan Daniel Torres Ramírez, Sebastián Castellanos Prada
 
@@ -128,7 +128,7 @@ por identidad al validar.
 
 ```
 ├── README.md
-├── banner.jpg                                          Banner del proyecto (800 × 300)
+├── banner-proyecto.jpg                                          Banner del proyecto (800 × 300)
 └── ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb  Notebook del primer avance
 ```
 
