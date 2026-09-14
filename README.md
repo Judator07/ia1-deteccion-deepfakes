@@ -53,7 +53,7 @@ numéricamente más grandes.
 Los que quedan en el programa son: análisis de datos y discriminación estadística · introducción al
 aprendizaje de máquina · clasificación · métodos de aprendizaje de máquina · regresión ·
 introducción al aprendizaje profundo · aplicación del aprendizaje profundo en imágenes ·
-aprendizaje no supervisado · reducción de dimensionalidad · algoritmos genéticos.
+aprendizaje no supervisado · reducción de dimensionalidad, entre otros.
 
 ---
 
