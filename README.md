@@ -24,7 +24,7 @@ Proyecto final de **Inteligencia Artificial 1, Grupo F1** · Universidad Industr
 | Resolución original | 1024 × 1024, rostros ya alineados y recortados |
 | Metadatos | `metadata.csv` con raza, género y edad de cada rostro real |
 | Licencia | CC BY-NC 4.0 |
-| Usadas en el proyecto | 69.786 imágenes estandarizadas a 64 × 64 (Avance 1); submuestra de 12.000 para entrenar los clasificadores (Avance 2) |
+| Usadas en el proyecto | 69.786 imágenes estandarizadas a 64 × 64. Avance 2: submuestra de 12.000 en la Parte 2.1 y las 69.786 en la Parte 2.2 |
 
 Las imágenes falsas fueron curadas a mano por los autores del dataset para conservar únicamente
 aquellas que un evaluador humano no distingue de una fotografía real.
@@ -53,14 +53,19 @@ numéricamente más grandes.
 `max_depth` · Random Forest (RF) con curva de `n_estimators` · máquina de soporte vectorial (SVM) con
 kernels lineal, polinómico y RBF · tres perceptrones multicapa (DL-3, DL-6 y DL-10) con capas
 ocultas `relu`, salida de 2 neuronas `softmax` y optimizador Adam, con un experimento por cada
-número de epochs (5, 10, 50 y 100).
+número de epochs (5, 10, 50 y 100). El avance tiene dos partes:
+
+- **Parte 2.1:** submuestra de 12.000 imágenes, scikit-learn en CPU y una sola partición de validación.
+- **Parte 2.2:** las 69.786 imágenes, los mismos modelos en GPU con **RAPIDS cuML** (las redes con
+  Keras) y **validación cruzada agrupada de 5 pliegues** (`StratifiedGroupKFold`). El árbol de decisión
+  se implementa como un Random Forest de un solo árbol, sin remuestreo y con todos los píxeles.
 
 *Cómo se evita que el resultado salga inflado:* ningún modelo usa el peso ni el formato del archivo, y
-todas las imágenes se vuelven a guardar en JPEG con la misma calidad (90); la partición 80/20 se hace
-por foto base, de modo que una foto real y las falsas construidas sobre ella nunca quedan repartidas
-entre entrenamiento y prueba; los hiperparámetros
-se eligen con un conjunto de validación sacado del 80 % de entrenamiento, y la prueba se usa una sola
-vez por modelo.
+todas las imágenes se vuelven a guardar en JPEG con la misma calidad (90). La partición 80/20 es por
+foto base en la Parte 2.1 y por persona en la 2.2: una real queda en el mismo grupo que toda falsa que
+la use como foto base o como cara pegada, así que ninguna persona aparece a la vez en entrenamiento y
+en prueba. Los hiperparámetros se eligen con validación sacada del 80 % de entrenamiento, y la prueba
+se usa una sola vez por modelo.
 
 **Siguientes entregas:** aprendizaje no supervisado · reducción de dimensionalidad · clustering,
 sobre las mismas imágenes.
@@ -76,14 +81,16 @@ sobre las mismas imágenes.
 | **Matplotlib** | Gráficas de torta, histogramas, imágenes promedio y de desviación, curvas de hiperparámetros y comparación de modelos |
 | **scikit-learn** | Partición de los datos, GNB, árbol de decisión, Random Forest, SVM y cálculo del accuracy |
 | **TensorFlow / Keras** | Construcción y entrenamiento de los perceptrones multicapa |
+| **RAPIDS cuML y CuPy** | GNB, Random Forest, árbol de decisión y SVM entrenados en GPU con todas las imágenes (Parte 2.2) |
 | **Pillow (PIL)** | Apertura, decodificación y redimensionado de las imágenes, y recompresión JPEG (Avance 2) |
 | **zipfile, os, io, glob, time, shutil** | Librerías estándar de Python: lectura de los archivos comprimidos, recorrido de rutas y control del proceso por tandas |
 | **IPython.display** | Visualización del banner dentro del notebook |
 | **google.colab** | Montaje de Google Drive para guardar el resultado procesado |
 | **aria2** | Descarga del dataset con múltiples conexiones en paralelo (herramienta de línea de comandos) |
 
-Entorno de ejecución: **Python 3 sobre Google Colab**. El Avance 1 se ejecutó en la versión gratuita; el
-Avance 2, en Colab Pro con GPU NVIDIA L4.
+Entorno de ejecución: **Python 3 sobre Google Colab**. El Avance 1 se ejecutó en la versión gratuita;
+la Parte 2.1 del Avance 2, en Colab Pro con GPU NVIDIA L4, y la Parte 2.2, en Colab Pro con GPU NVIDIA
+A100 de 80 GB y alta RAM.
 
 ---
 
@@ -139,31 +146,37 @@ por foto base al partir los datos.
 
 ## Resultados del segundo avance
 
-Todos los modelos se entrenaron con el mismo 80 % (9.578 imágenes) y se midieron en el mismo 20 % de
-prueba (2.422 imágenes), que ninguno vio antes. La referencia es responder siempre «real», que acierta
-el **54,7 %**.
+Accuracy en prueba de cada modelo. En la **Parte 2.1** (12.000 imágenes) todos se entrenaron con el
+mismo 80 % (9.578) y se midieron en el mismo 20 % (2.422); responder siempre «real» acierta el 54,7 %.
+En la **Parte 2.2** (69.786 imágenes) se entrenaron con 57.115 y se midieron en 12.671; ahí la
+referencia es 56,0 %. La validación cruzada es el promedio ± la desviación de los 5 pliegues.
 
-| Modelo | Hiperparámetro elegido | Accuracy en prueba |
-|---|---|---|
-| DL-10 (10 capas de 128) | 100 epochs | **77,9 %** |
-| DL-3 (64, 128, 128) | 100 epochs | 77,1 % |
-| DL-6 (64, 64, 128, 128, 256, 256) | 100 epochs | 77,0 % |
-| SVM lineal | kernel lineal | 73,5 % |
-| SVM RBF | kernel RBF | 69,7 % |
-| Random Forest | 400 árboles | 66,8 % |
-| SVM polinómico | kernel polinómico (grado 3) | 60,0 % |
-| Árbol de decisión | `max_depth` = 6 | 59,8 % |
-| Naive Bayes Gaussiano | sin hiperparámetros | 52,6 % |
+| Modelo | Elegido en 2.1 | Prueba 2.1 | Elegido en 2.2 | Validación cruzada 2.2 | Prueba 2.2 |
+|---|---|---|---|---|---|
+| DL-10 (10 capas de 128) | 100 epochs | 77,9 % | 100 epochs | 84,2 ± 0,4 % | **85,9 %** |
+| DL-6 (64, 64, 128, 128, 256, 256) | 100 epochs | 77,0 % | 100 epochs | 83,1 ± 0,5 % | 85,1 % |
+| DL-3 (64, 128, 128) | 100 epochs | 77,1 % | 100 epochs | 83,6 ± 0,6 % | 84,7 % |
+| SVM RBF | kernel RBF | 69,7 % | kernel RBF | 78,5 ± 0,5 % | 80,3 % |
+| SVM lineal | kernel lineal | 73,5 % | kernel lineal | 78,5 ± 0,4 % | 80,2 % |
+| Random Forest | 400 árboles | 66,8 % | 400 árboles | 70,6 ± 0,8 % | 72,1 % |
+| SVM polinómico | grado 3 | 60,0 % | grado 3 | 69,5 ± 1,0 % | 72,0 % |
+| Árbol de decisión | `max_depth` = 6 | 59,8 % | `max_depth` = 8 | 62,4 ± 0,4 % | 62,2 % |
+| Naive Bayes Gaussiano | sin hiperparámetros | 52,6 % | sin hiperparámetros | 53,1 ± 0,3 % | 53,3 % |
 
-**Las redes neuronales son las mejores** y reducen el error a menos de la mitad (22,1 % contra 45,3 %
-de la referencia). Entre ellas la diferencia es menor a un punto, unas 22 imágenes, así que no alcanza
-para decir que más capas sea mejor. Las redes sobreajustan (95 a 96 % en entrenamiento), pero su
-acierto en prueba es casi igual al de validación.
+**Con todas las imágenes, todos los modelos mejoran** y el orden casi no cambia. Las redes
+neuronales son las mejores en las dos partes: la mejor se equivoca en el 14,1 % de las imágenes de
+prueba, contra el 22,1 % con la submuestra y el 44,0 % de responder siempre «real». Entre ellas la
+diferencia es de 1,2 puntos, así que no alcanza para decir que más capas sea mejor. Su sobreajuste
+bajó de casi 20 puntos entre entrenamiento y validación a unos 11.
 
-**Entre los modelos clásicos gana la SVM lineal.** Con la configuración usada, las fronteras más
-flexibles (`rbf`, `poly`) quedan por debajo incluso en entrenamiento, y el árbol profundo llega a
-99,6 % en entrenamiento pero cae a 56,1 % en validación. **GNB queda por debajo de la referencia**, porque supone que los píxeles son independientes y
-en una imagen cada píxel se parece a sus vecinos.
+**Lo que más ganó con los datos fueron los modelos flexibles:** la SVM polinómica (+12,0 puntos), la
+RBF (+10,6) y las redes (cerca de +8). Entre los clásicos, la SVM lineal y la RBF quedan empatadas
+cerca del 80 %. El árbol (+2,4) y GNB (+0,7) casi no cambian: el árbol profundo memoriza sin
+generalizar, y **GNB sigue por debajo de la referencia** porque supone que los píxeles son
+independientes, cuando en una imagen cada píxel se parece a sus vecinos.
+
+**La GPU es la que permitió usar todo:** con RAPIDS cuML, cada SVM entrenó en segundos con unas
+46.000 imágenes, cuando en la Parte 2.1, en CPU, tomó de 7 a 28 minutos con 7.639.
 
 ---
 
@@ -188,12 +201,17 @@ disponible para almacenar el resultado procesado (unos 900 MB).
 3. Las secciones 4 a 11 trabajan sobre el archivo reducido guardado en Drive y se ejecutan en
    pocos minutos.
 4. El Avance 2 empieza en la sección 13 y no necesita repetir la descarga: basta ejecutar la primera
-   celda y luego de la sección 13 en adelante. Toma alrededor de hora y media, casi toda por la SVM;
-   para las redes neuronales conviene activar una GPU (Entorno de ejecución, Cambiar tipo de entorno
-   de ejecución).
+   celda y luego de la sección 13 en adelante. La Parte 2.1 (secciones 13 a 22) toma alrededor de
+   hora y media, casi toda por la SVM; para las redes neuronales conviene activar una GPU (Entorno de
+   ejecución, Cambiar tipo de entorno de ejecución).
+5. La Parte 2.2 (sección 23) necesita una GPU y se puede correr sola, en una sesión nueva. Con una
+   A100 tomó unas 4 horas, casi todas por la validación cruzada de las redes. Cada resultado se guarda
+   en Drive (`cv_parte22.json`) apenas termina; si la sesión se cae, basta volver a correr la sección
+   y continúa donde iba.
 
-Las librerías de Python vienen preinstaladas en Colab; la única dependencia adicional es `aria2`,
-que el propio notebook instala.
+Las librerías de Python vienen preinstaladas en Colab, incluida RAPIDS cuML en los entornos con GPU
+(si faltara, la sección 23 la instala con el script oficial de RAPIDS). La única dependencia adicional
+del Avance 1 es `aria2`, que el propio notebook instala.
 
 ---
 
@@ -226,6 +244,10 @@ que el propio notebook instala.
   Vasudevan, V., Warden, P., Wicke, M., Yu, Y. y Zheng, X. (2016). TensorFlow: A system for
   large-scale machine learning. *12th USENIX Symposium on Operating Systems Design and
   Implementation (OSDI 16)*, 265-283.
+
+- Raschka, S., Patterson, J. y Nolet, C. (2020). Machine Learning in Python: Main Developments and
+  Technology Trends in Data Science, Machine Learning, and Artificial Intelligence. *Information,
+  11*(4), 193. https://doi.org/10.3390/info11040193 [Descripción de RAPIDS cuML]
 
 - Garzón Villamizar, G. (agosto a octubre de 2026). *Clases de Inteligencia Artificial 1*
   [Comunicación personal]. Universidad Industrial de Santander, Bucaramanga, Colombia.
