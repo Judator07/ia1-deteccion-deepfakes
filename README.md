@@ -19,7 +19,7 @@ Proyecto final de **Inteligencia Artificial 1, Grupo F1** · Universidad Industr
 
 | | |
 |---|---|
-| Imágenes reales | 38.582 archivos · 38.540 identidades (CelebA-HQ y FFHQ) |
+| Imágenes reales | 38.582 archivos · 38.540 fotos distintas, sin duplicados (CelebA-HQ y FFHQ) |
 | Imágenes falsas | 31.249 archivos (*face swap* con herramientas comerciales) |
 | Resolución original | 1024 × 1024, rostros ya alineados y recortados |
 | Metadatos | `metadata.csv` con raza, género y edad de cada rostro real |
@@ -63,8 +63,8 @@ número de epochs (5, 10, 50 y 100). El avance tiene dos partes:
 *Cómo se evita que el resultado salga inflado:* ningún modelo usa el peso ni el formato del archivo, y
 todas las imágenes se vuelven a guardar en JPEG con la misma calidad (90). La partición 80/20 es por
 foto base en la Parte 2.1 y por persona en la 2.2: una real queda en el mismo grupo que toda falsa que
-la use como foto base o como cara pegada, así que ninguna persona aparece a la vez en entrenamiento y
-en prueba. Los hiperparámetros se eligen con validación sacada del 80 % de entrenamiento, y la prueba
+la use como foto base o como cara pegada, así que ninguna foto real, ni como base ni como cara pegada,
+aparece a la vez en entrenamiento y en prueba. Los hiperparámetros se eligen con validación sacada del 80 % de entrenamiento, y la prueba
 se usa una sola vez por modelo.
 
 **Siguientes entregas:** aprendizaje no supervisado · reducción de dimensionalidad · clustering,
@@ -83,7 +83,7 @@ sobre las mismas imágenes.
 | **TensorFlow / Keras** | Construcción y entrenamiento de los perceptrones multicapa |
 | **RAPIDS cuML y CuPy** | GNB, Random Forest, árbol de decisión y SVM entrenados en GPU con todas las imágenes (Parte 2.2) |
 | **Pillow (PIL)** | Apertura, decodificación y redimensionado de las imágenes, y recompresión JPEG (Avance 2) |
-| **zipfile, os, io, glob, time, shutil** | Librerías estándar de Python: lectura de los archivos comprimidos, recorrido de rutas y control del proceso por tandas |
+| **zipfile, os, io, glob, time, shutil, json, warnings** | Librerías estándar de Python: lectura de los archivos comprimidos, recorrido de rutas y control del proceso por tandas |
 | **IPython.display** | Visualización del banner dentro del notebook |
 | **google.colab** | Montaje de Google Drive para guardar el resultado procesado |
 | **aria2** | Descarga del dataset con múltiples conexiones en paralelo (herramienta de línea de comandos) |
@@ -165,11 +165,11 @@ referencia es 56,0 %. La validación cruzada es el promedio ± la desviación de
 
 **Con todas las imágenes, todos los modelos mejoran** y el orden casi no cambia. Las redes
 neuronales son las mejores en las dos partes: la mejor se equivoca en el 14,1 % de las imágenes de
-prueba, contra el 22,1 % con la submuestra y el 44,0 % de responder siempre «real». Entre ellas la
-diferencia es de 1,2 puntos, así que no alcanza para decir que más capas sea mejor. Su sobreajuste
-bajó de casi 20 puntos entre entrenamiento y validación a unos 11.
+prueba, contra el 22,1 % con la submuestra y el 44,0 % de responder siempre «real». Entre ellas hay
+1,2 puntos y DL-10 queda primera en validación y en prueba, aunque por poco. Su sobreajuste
+bajó de casi 20 puntos entre entrenamiento y validación a unos 11 o 12.
 
-**Lo que más ganó con los datos fueron los modelos flexibles:** la SVM polinómica (+12,0 puntos), la
+**Lo que más ganó con los datos fueron las SVM no lineales y las redes:** la SVM polinómica (+12,0 puntos), la
 RBF (+10,6) y las redes (cerca de +8). Entre los clásicos, la SVM lineal y la RBF quedan empatadas
 cerca del 80 %. El árbol (+2,4) y GNB (+0,7) casi no cambian: el árbol profundo memoriza sin
 generalizar, y **GNB sigue por debajo de la referencia** porque supone que los píxeles son
