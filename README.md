@@ -3,7 +3,13 @@
 
 ![Banner del proyecto](banner-proyecto.jpg)
 
-**Autores:** Juan Daniel Torres Ramírez, Sebastián Castellanos Prada
+| | |
+|---|---|
+| **Título** | ¿Esta cara es real? Detección de rostros generados o manipulados por IA (deepfake) en imágenes mediante algoritmos clásicos de aprendizaje automático |
+| **Integrantes** | Juan Daniel Torres Ramírez (2240082) · Sebastián Castellanos Prada (2240037) |
+| **Video (YouTube)** | *Enlace pendiente* |
+| **Dataset** | https://zenodo.org/records/16140829 |
+| **Diapositivas** | [`Diapositivas_IA1_Deepfakes.pdf`](Diapositivas_IA1_Deepfakes.pdf) |
 
 **Objetivo:** Determinar si la fotografía de un rostro es auténtica o fue manipulada por una inteligencia artificial, usando los algoritmos de aprendizaje automático y las redes neuronales vistos en clase.
 
@@ -67,8 +73,17 @@ la use como foto base o como cara pegada, así que ninguna foto real, ni como ba
 aparece a la vez en entrenamiento y en prueba. Los hiperparámetros se eligen con validación sacada del 80 % de entrenamiento, y la prueba
 se usa una sola vez por modelo.
 
-**Siguientes entregas:** aprendizaje no supervisado · reducción de dimensionalidad · clustering,
-sobre las mismas imágenes.
+**Aprendizaje no supervisado (Avance 3):** las 69.786 imágenes, sin usar la etiqueta, en GPU con
+RAPIDS cuML. Escalado con `StandardScaler` y `MinMaxScaler` · reducción a 2 componentes con PCA y con
+t-SNE (PCA a 50 componentes y luego t-SNE) · K-Means con `n_clusters` = 2 (el número de clases) ·
+DBSCAN con `eps` y `min_samples` elegidos con la curva de distancia al k-ésimo vecino. La etiqueta solo
+se usa al final para colorear las gráficas y medir si los grupos coinciden con real y falsa.
+
+*Cómo se eligieron `eps` y `min_samples`:* `eps` es el codo de la curva ordenada de distancias de cada
+punto a su vecino número `min_samples`, tomado como el punto más alejado de la recta que une sus
+extremos. Para `min_samples` se partió de la regla 2 × dimensiones = 4, pero con 69.786 puntos producía
+198 «grupos» de menos del 1 % de las imágenes; se probaron 4, 8, 16, 32, 64 y 128 y se eligió el menor
+valor sin grupos tan pequeños: **32**, con **`eps` = 1,204**.
 
 ---
 
@@ -81,7 +96,7 @@ sobre las mismas imágenes.
 | **Matplotlib** | Gráficas de torta, histogramas, imágenes promedio y de desviación, curvas de hiperparámetros y comparación de modelos |
 | **scikit-learn** | Partición de los datos, GNB, árbol de decisión, Random Forest, SVM y cálculo del accuracy |
 | **TensorFlow / Keras** | Construcción y entrenamiento de los perceptrones multicapa |
-| **RAPIDS cuML y CuPy** | GNB, Random Forest, árbol de decisión y SVM entrenados en GPU con todas las imágenes (Parte 2.2) |
+| **RAPIDS cuML y CuPy** | GNB, Random Forest, árbol de decisión y SVM entrenados en GPU con todas las imágenes (Parte 2.2); escalado, PCA, t-SNE, K-Means, DBSCAN, vecinos más cercanos y coeficiente de silueta en GPU (Avance 3) |
 | **Pillow (PIL)** | Apertura, decodificación y redimensionado de las imágenes, y recompresión JPEG (Avance 2) |
 | **zipfile, os, io, glob, time, shutil, json, warnings** | Librerías estándar de Python: lectura de los archivos comprimidos, recorrido de rutas y control del proceso por tandas |
 | **IPython.display** | Visualización del banner dentro del notebook |
@@ -89,8 +104,8 @@ sobre las mismas imágenes.
 | **aria2** | Descarga del dataset con múltiples conexiones en paralelo (herramienta de línea de comandos) |
 
 Entorno de ejecución: **Python 3 sobre Google Colab**. El Avance 1 se ejecutó en la versión gratuita;
-la Parte 2.1 del Avance 2, en Colab Pro con GPU NVIDIA L4, y la Parte 2.2, en Colab Pro con GPU NVIDIA
-A100 de 80 GB y alta RAM.
+la Parte 2.1 del Avance 2, en Colab Pro con GPU NVIDIA L4, y la Parte 2.2 y el Avance 3, en Colab Pro con
+GPU NVIDIA A100 de 80 GB y alta RAM.
 
 ---
 
@@ -101,8 +116,9 @@ A100 de 80 GB y alta RAM.
 | Repositorio | https://github.com/Judator07/ia1-deteccion-deepfakes |
 | Código (notebook) | [`ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb`](ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb) |
 | Dataset | https://zenodo.org/records/16140829 |
-| Video | *Pendiente, entrega final* |
-| Diapositivas | *Pendiente, entrega final* |
+| Video (YouTube) | *Enlace pendiente* |
+| Diapositivas | [`Diapositivas_IA1_Deepfakes.pdf`](Diapositivas_IA1_Deepfakes.pdf) |
+| Banner | [`banner-proyecto.jpg`](banner-proyecto.jpg) |
 
 ---
 
@@ -112,7 +128,8 @@ A100 de 80 GB y alta RAM.
 |---|---|
 | **Avance 1: exploración de datos** | Completado |
 | **Avance 2: modelos de clasificación** | Completado |
-| Entrega final | Pendiente |
+| **Avance 3: aprendizaje no supervisado** | Completado |
+| **Entrega final: diapositivas y video** | Diapositivas completadas · video pendiente de enlace |
 
 ---
 
@@ -180,12 +197,33 @@ independientes, cuando en una imagen cada píxel se parece a sus vecinos.
 
 ---
 
+## Resultados del tercer avance
+
+Las 69.786 imágenes, en GPU y sin mirar la etiqueta. Decir siempre «real» acierta el 55,2 %.
+
+| Paso | Resultado |
+|---|---|
+| Escalado | `StandardScaler` deja todas las columnas con desviación 1; `MinMaxScaler` conserva sus diferencias (de 0,115 a 0,323) |
+| PCA a 2 componentes | Guardan el 32,7 % de la varianza con `StandardScaler` y el 35,5 % con `MinMaxScaler`; con 50 componentes, el 82,8 % |
+| Elección del mapa | K-Means con 2 grupos coincide con real/falsa en un 55,2 % en los tres mapas (igual que decir siempre «real»); decide la silueta: **PCA con `MinMaxScaler` (0,431)**, frente a 0,386 de t-SNE y 0,382 de PCA con `StandardScaler` |
+| K-Means (k = 2) | Grupos de 32.446 y 37.340 imágenes con 44,9 y 44,7 % de falsas: separa **claras de oscuras** (brillo promedio 136,7 contra 91,8; la componente 1 tiene correlación 0,95 con el brillo) |
+| DBSCAN (`eps` = 1,204, `min_samples` = 32) | **Un solo grupo** con el 97,4 % de las imágenes y 2,6 % de ruido, con 44,8 y 44,4 % de falsas |
+
+**Sin la etiqueta, ningún método separa reales de falsas.** Reales y falsas forman una sola nube en
+PCA y en t-SNE. Lo que organiza las imágenes es el brillo, el fondo y el pelo, que una falsa comparte
+con su foto base; la manipulación cambia pocos píxeles de la cara. Es lo esperable en un dataset hecho
+para ser indistinguible, y contrasta con el 85,9 % que alcanza la mejor red del Avance 2 cuando sí ve la
+etiqueta.
+
+---
+
 ## Estructura del repositorio
 
 ```
 ├── README.md
 ├── banner-proyecto.jpg                                          Banner del proyecto (800 × 300)
-└── ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb  Notebook del proyecto (Avance 1 y Avance 2)
+├── Diapositivas_IA1_Deepfakes.pdf                               Diapositivas: resumen del semestre
+└── ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb  Notebook acumulativo (Avances 1, 2 y 3)
 ```
 
 ---
@@ -208,9 +246,11 @@ disponible para almacenar el resultado procesado (unos 900 MB).
    A100 tomó unas 4 horas, casi todas por la validación cruzada de las redes. Cada resultado se guarda
    en Drive (`cv_parte22.json`) apenas termina; si la sesión se cae, basta volver a correr la sección
    y continúa donde iba.
+6. El Avance 3 (secciones 25 a 34) también se puede correr solo, en una sesión nueva con GPU: carga las
+   imágenes de Drive y cada paso tarda segundos con cuML.
 
 Las librerías de Python vienen preinstaladas en Colab, incluida RAPIDS cuML en los entornos con GPU
-(si faltara, la sección 23 la instala con el script oficial de RAPIDS). La única dependencia adicional
+(si faltara, las secciones 23 y 25 la instalan con el script oficial de RAPIDS). La única dependencia adicional
 del Avance 1 es `aria2`, que el propio notebook instala.
 
 ---
@@ -245,11 +285,26 @@ del Avance 1 es `aria2`, que el propio notebook instala.
   large-scale machine learning. *12th USENIX Symposium on Operating Systems Design and
   Implementation (OSDI 16)*, 265-283.
 
+- Ester, M., Kriegel, H.-P., Sander, J. y Xu, X. (1996). A density-based algorithm for discovering
+  clusters in large spatial databases with noise. *Proceedings of the 2nd International Conference on
+  Knowledge Discovery and Data Mining (KDD-96)*, 226-231. [DBSCAN y la gráfica de distancia al k-ésimo vecino]
+
+- Sander, J., Ester, M., Kriegel, H.-P. y Xu, X. (1998). Density-based clustering in spatial databases:
+  The algorithm GDBSCAN and its applications. *Data Mining and Knowledge Discovery, 2*(2), 169-194.
+  [Regla min_samples = 2 × dimensiones]
+
+- Schubert, E., Sander, J., Ester, M., Kriegel, H.-P. y Xu, X. (2017). DBSCAN revisited, revisited: why
+  and how you should (still) use DBSCAN. *ACM Transactions on Database Systems, 42*(3), 19.
+  https://doi.org/10.1145/3068335
+
+- van der Maaten, L. y Hinton, G. (2008). Visualizing data using t-SNE. *Journal of Machine Learning
+  Research, 9*, 2579-2605.
+
 - Raschka, S., Patterson, J. y Nolet, C. (2020). Machine Learning in Python: Main Developments and
   Technology Trends in Data Science, Machine Learning, and Artificial Intelligence. *Information,
   11*(4), 193. https://doi.org/10.3390/info11040193 [Descripción de RAPIDS cuML]
 
-- Garzón Villamizar, G. (agosto a octubre de 2026). *Clases de Inteligencia Artificial 1*
+- Garzón Villamizar, G. (agosto a noviembre de 2026). *Clases de Inteligencia Artificial 1*
   [Comunicación personal]. Universidad Industrial de Santander, Bucaramanga, Colombia.
 
 ---
