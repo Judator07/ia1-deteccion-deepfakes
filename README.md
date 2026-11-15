@@ -7,7 +7,7 @@
 |---|---|
 | **Título** | ¿Esta cara es real? Detección de rostros generados o manipulados por IA (deepfake) en imágenes mediante algoritmos clásicos de aprendizaje automático |
 | **Integrantes** | Juan Daniel Torres Ramírez (2240082) · Sebastián Castellanos Prada (2240037) |
-| **Video (YouTube)** | *Enlace pendiente* |
+| **Video (YouTube)** | https://youtu.be/HERYPkvHBTo |
 | **Dataset** | https://zenodo.org/records/16140829 |
 | **Diapositivas** | [`Diapositivas_IA1_Deepfakes.pdf`](Diapositivas_IA1_Deepfakes.pdf) |
 
@@ -116,7 +116,7 @@ GPU NVIDIA A100 de 80 GB y alta RAM.
 | Repositorio | https://github.com/Judator07/ia1-deteccion-deepfakes |
 | Código (notebook) | [`ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb`](ProyectoClase_IA1_JuanTorres_SebastianCastellanos.ipynb) |
 | Dataset | https://zenodo.org/records/16140829 |
-| Video (YouTube) | *Enlace pendiente* |
+| Video (YouTube) | https://youtu.be/HERYPkvHBTo |
 | Diapositivas | [`Diapositivas_IA1_Deepfakes.pdf`](Diapositivas_IA1_Deepfakes.pdf) |
 | Banner | [`banner-proyecto.jpg`](banner-proyecto.jpg) |
 
@@ -129,7 +129,7 @@ GPU NVIDIA A100 de 80 GB y alta RAM.
 | **Avance 1: exploración de datos** | Completado |
 | **Avance 2: modelos de clasificación** | Completado |
 | **Avance 3: aprendizaje no supervisado** | Completado |
-| **Entrega final: diapositivas y video** | Diapositivas completadas · video pendiente de enlace |
+| **Entrega final: diapositivas y video** | Completada |
 
 ---
 
